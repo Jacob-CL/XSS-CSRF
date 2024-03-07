@@ -34,6 +34,25 @@
 -  XSS can be injected into any input in the HTML page, which is not exclusive to HTML input fields, but may also be in HTTP headers like the Cookie or User-Agent (i.e., when their values are displayed on the page).
 -  We are unlikely to find any XSS vulnerabilities through payload lists or XSS tools for the more common web applications. This is because the developers of such web applications likely run their application through vulnerability assessment tools and then patch any identified vulnerabilities before release. For such cases, manual code review may reveal undetected XSS vulnerabilities, which may survive public releases of common web applications.
 -  It would be wise to try running our HTML code locally to see how it looks and to ensure that it runs as expected, before we commit to it in our final payload.
+-  JavaScript functions that allow changing raw text of HTML fields, like:
+  - DOM.innerHTML
+  - DOM.outerHTML
+  - document.write()
+  - document.writeln()
+  - document.domain
+- And the following jQuery functions:
+  - html()
+  - parseHTML()
+  - add()
+  - append()
+  - prepend()
+  - after()
+  - insertAfter()
+  - before()
+  - insertBefore()
+  - replaceAll()
+  - replaceWith()
+- As these functions write raw text to the HTML code, if any user input goes into them, it may include malicious JavaScript code, which leads to an XSS vulnerability.
 
 ## Tooling
 - Nessus, Burp Pro, ZAP all have capabilities for detecting all 3 types of XSS vulnerabilties. These scanners usually do two types of scanning: A Passive Scan, which reviews client-side code for potential DOM-based vulnerabilities, and an Active Scan, which sends various types of payloads to attempt to trigger an XSS through payload injection in the page source.
@@ -45,4 +64,19 @@
   - Background Color document.body.style.background
   - Background document.body.background
   - Page Title document.title
+  - 
+## Prevention
+- In addition to input validation, we should always ensure that we do not allow any input with JavaScript code in it, by escaping any special characters. For this, we can utilize the DOMPurify JavaScript library
+- we should always ensure that we never use user input directly within certain HTML tags
   - Page Text DOM.innerHTML
+- We should have XSS prevention measures on the back-end as well. This can be achieved with Input and Output Sanitization and Validation, Server Configuration, and Back-end Tools that help prevent XSS vulnerabilities.
+
+## Server Configuration
+In addition to the above, there are certain back-end web server configurations that may help in preventing XSS attacks, such as:
+  - Using HTTPS across the entire domain.
+  - Using XSS prevention headers.
+  - Using the appropriate Content-Type for the page, like X-Content-Type-Options=nosniff.
+  - Using Content-Security-Policy options, like script-src 'self', which only allows locally hosted scripts.
+  - Using the HttpOnly and Secure cookie flags to prevent JavaScript from reading cookies and only transport them over HTTPS.
+    
+- In addition to the above, having a good Web Application Firewall (WAF) can significantly reduce the chances of XSS exploitation, as it will automatically detect any type of injection going through HTTP requests and will automatically reject such requests. Furthermore, some frameworks provide built-in XSS protection, like ASP.NET.
